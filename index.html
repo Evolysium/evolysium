@@ -118,6 +118,26 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-grad
 .feats li::before{content:"";position:absolute;left:2px;top:10px;width:10px;height:6px;border-left:2px solid var(--acc2);border-bottom:2px solid var(--acc2);transform:rotate(-45deg)}
 .pop{display:inline-block;background:var(--acc);border-radius:999px;padding:3px 12px;font-size:.72rem;font-weight:700;margin-bottom:8px}
 details{border-bottom:1px solid var(--line);padding:14px 0}summary{cursor:pointer;font-weight:600}details p{color:var(--mute);margin:8px 0 0}
+
+/* footer and legal documents */
+.foot{text-align:left;margin:40px 0 28px;padding:32px 0 0;border-top:1px solid var(--line);color:var(--mute);font-size:.88rem}
+.fgrid{display:grid;gap:28px;grid-template-columns:1.4fr 1fr 1.2fr 1.2fr}
+@media(max-width:860px){.fgrid{grid-template-columns:1fr 1fr}.foot{padding-bottom:70px}}
+@media(max-width:520px){.fgrid{grid-template-columns:1fr}}
+.foot h4{color:var(--ink);font-size:.9rem;margin:0 0 12px}
+.foot a:not(.brand){display:block;color:var(--mute);text-decoration:none;padding:4px 0}
+.foot a:not(.brand):hover{color:var(--ink)}
+.fine{margin:28px 0 14px;font-size:.78rem;line-height:1.6;max-width:820px}
+.fbar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--line);font-size:.8rem}
+dialog.doc{width:min(780px,94vw);max-height:88vh;padding:0;overflow:hidden}
+dialog.doc[open]{display:flex;flex-direction:column}
+.dochead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 22px;border-bottom:1px solid var(--line)}
+.dochead h3{margin:0;font-size:1.15rem}
+#docBody{overflow:auto;padding:6px 22px 26px;overscroll-behavior:contain}
+.legal h4{margin:22px 0 6px;font-size:1rem}
+.legal p,.legal li{color:#cbd5e1;font-size:.92rem}
+.legal a{color:#93c5fd}
+.legal ul{padding-left:20px}
 </style>
 </head>
 <body>
@@ -283,7 +303,7 @@ details{border-bottom:1px solid var(--line);padding:14px 0}summary{cursor:pointe
           <div class="grid" style="margin-top:14px">
             <div class="box"><div class="lbl">Your payment handle</div><div class="val" id="acHandle" style="font-size:1.2rem"></div><p class="sub">Share it so partners can pay you.</p><button id="copyHandle">Copy handle</button></div>
             <div class="box"><div class="lbl">Payout account</div><div class="val" id="acPayout" style="font-size:1.2rem"></div><p class="sub">Stripe verifies your business before you can receive money.</p><button class="p" id="onboard">Set up payouts</button></div>
-            <div class="box"><div class="lbl">Plan</div><div class="val" id="acPlan" style="font-size:1.2rem">No plan</div><p class="sub">Billed monthly through Stripe.</p><a class="btn" href="#plans">View plans</a></div>
+            <div class="box"><div class="lbl">Plan</div><div class="val" id="acPlan" style="font-size:1.2rem">No plan</div><p class="sub">Billed monthly through Stripe.</p><div class="row"><button class="p hidden" id="manageSub">Manage subscription</button><a class="btn" href="#plans">View plans</a></div></div>
             <div class="box"><div class="lbl">Session</div><p class="sub">You are signed in.</p><button id="signOut">Sign out</button></div>
           </div>
         </div>
@@ -326,7 +346,17 @@ details{border-bottom:1px solid var(--line);padding:14px 0}summary{cursor:pointe
       <button class="p" style="width:100%">Send message</button>
     </form>
   </section>
-  <footer>© 2026 Evolysium · office.evolysium@gmail.com</footer>
+  <footer class="foot">
+    <div class="fgrid">
+      <div><a class="brand" href="#top"><span class="mark">ƎE</span>Evolysium</a>
+        <p style="margin:12px 0 0;max-width:300px">Business payments, milestone escrow and invoicing in one workspace.</p></div>
+      <div><h4>Product</h4><a href="#workspace">Workspace</a><a href="#how">How it works</a><a href="#plans">Plans</a><a href="#faq">FAQ</a></div>
+      <div><h4>Legal</h4><a href="#terms">Terms of Service</a><a href="#privacy">Privacy Policy</a><a href="#cookies">Cookies and storage</a><a href="#refunds">Refunds and cancellation</a><a href="#aup">Acceptable Use</a><a href="#imprint">Imprint</a></div>
+      <div><h4>Contact</h4><a href="mailto:office.evolysium@gmail.com">office.evolysium@gmail.com</a><a href="#contact">Send us a message</a></div>
+    </div>
+    <p class="fine">Evolysium is a software platform, not a bank. Card payments and payouts are provided by Stripe and are subject to Stripe's terms. Milestone agreements are a feature of this platform and are not a bank escrow service or a deposit. Evolysium is intended for business use only.</p>
+    <div class="fbar"><span>© 2026 <span data-l="entity"></span>. All rights reserved.</span><span>Payments powered by Stripe</span></div>
+  </footer>
 </main>
 
 <dialog id="authDlg">
@@ -341,6 +371,102 @@ details{border-bottom:1px solid var(--line);padding:14px 0}summary{cursor:pointe
     <button type="button" id="authSwitch">Create an account</button><button type="button" id="authClose">Close</button>
   </div>
 </dialog>
+<dialog class="doc" id="docDlg" aria-labelledby="docTitle">
+  <div class="dochead"><h3 id="docTitle"></h3><button id="docClose">Close</button></div>
+  <div id="docBody" class="legal"></div>
+</dialog>
+
+<template id="doc-terms"><p class="lbl">Last updated <span data-l="updated"></span></p>
+<h4>1. Who we are and who may use Evolysium</h4>
+<p>Evolysium is operated by <span data-l="entity"></span>, <span data-l="address"></span> ("Evolysium", "we", "us"). The service is for businesses only. By creating an account you confirm that you act on behalf of a business and are authorised to accept these terms for it.</p>
+<h4>2. The service</h4>
+<p>Evolysium is a software platform where you can send and receive card payments, reserve funds for milestones, record invoices and download your history. We are not a bank. Card payments and payouts are provided by Stripe. To receive money you must complete Stripe's onboarding and accept Stripe's terms for connected accounts. Stripe decides whether a recipient is approved, and we may limit or suspend features if Stripe requires it.</p>
+<h4>3. Your account</h4>
+<p>Give us accurate information and keep it up to date. Keep your password secure and tell us straight away if you suspect unauthorised use. You are responsible for everything done through your account.</p>
+<h4>4. Payments</h4>
+<p>A direct payment is charged to the payer's card through Stripe. After our platform fee, the remaining amount is paid to the recipient's connected Stripe account, and Stripe's payout schedule applies. The fee is shown before you confirm each payment. Payments can be declined, refunded or disputed under card network and Stripe rules. If a payment you received is reversed or disputed, you are responsible for it and we may recover the amount from you.</p>
+<h4>5. Milestone agreements</h4>
+<p>For a milestone agreement the payer pays in advance. The funds are held in our Stripe balance until the payer approves and releases them to the recipient, minus our platform fee, or until the recipient declines and the payer is refunded. We are not a party to the work agreed between payer and recipient, and we do not judge its quality or settle disputes about it. Funds held for a long time may become unavailable for release or refund because of card network and Stripe time limits, so please release or decline promptly.</p>
+<h4>6. Plans and billing</h4>
+<p>Plans are billed monthly in advance through Stripe and renew automatically. The price is shown at checkout. To cancel or manage billing, use "Manage subscription" in your Account page or email us at <span data-l="email"></span>; the plan ends at the end of the current billing period. We will give notice before changing prices, and a change applies from your next billing period.</p>
+<h4>7. Your records and taxes</h4>
+<p>Invoices and history in the workspace are records for your convenience. You are responsible for your own tax, accounting and invoicing obligations. We do not provide legal, tax or financial advice.</p>
+<h4>8. Acceptable use</h4>
+<p>You must follow our <a href="#aup">Acceptable Use Policy</a>.</p>
+<h4>9. Availability and changes</h4>
+<p>We work to keep Evolysium available but do not promise uninterrupted service. We may improve, change or remove features and will tell you about material changes.</p>
+<h4>10. Liability</h4>
+<p>The service is provided "as is". To the extent the law allows, we are not liable for indirect or consequential losses or lost profits, and our total liability for any claim is limited to the fees you paid us in the 12 months before the claim. Nothing in these terms limits liability that cannot be limited by law.</p>
+<h4>11. Suspension and termination</h4>
+<p>You may close your account at any time once open agreements are settled. We may suspend or close an account if you break these terms, if the law or Stripe requires it, or to prevent fraud or harm. Where possible we will tell you why.</p>
+<h4>12. Changes, governing law and contact</h4>
+<p>We may update these terms and will post the new version here with its date; continuing to use Evolysium means you accept it. These terms are governed by the laws of <span data-l="country"></span>, and the courts there have jurisdiction, unless mandatory law says otherwise. Questions: <span data-l="email"></span>.</p></template>
+
+<template id="doc-privacy"><p class="lbl">Last updated <span data-l="updated"></span></p>
+<h4>1. Who is responsible</h4>
+<p>The controller of your personal data is <span data-l="entity"></span>, <span data-l="address"></span>. Contact: <span data-l="email"></span>.</p>
+<h4>2. What we collect</h4>
+<ul><li><strong>Account data:</strong> work email, company name, your chosen handle and your password, which is stored only in hashed form by our authentication provider.</li>
+<li><strong>Transaction records:</strong> payments, milestone agreements and invoices, including counterparties, amounts, references and timestamps.</li>
+<li><strong>Payout data:</strong> Stripe collects identity and bank details directly when you set up payouts. We only receive your Stripe account ID and whether payouts are enabled.</li>
+<li><strong>Messages:</strong> what you send through the contact form.</li>
+<li><strong>Technical data:</strong> such as your IP address in server logs.</li></ul>
+<h4>3. Why we use it and our legal basis</h4>
+<ul><li>To provide the service and your plan (performance of a contract).</li>
+<li>To meet accounting, tax and other legal duties (legal obligation).</li>
+<li>To keep the platform secure and prevent fraud and abuse (legitimate interests).</li>
+<li>To answer your messages (legitimate interests or steps before a contract).</li></ul>
+<p>We do not sell personal data and we do not use it for advertising.</p>
+<h4>4. Who receives it</h4>
+<p>We use these providers to run Evolysium: Stripe (payments, payouts and billing), Supabase (database and authentication), our hosting provider Render, and Google Fonts (typefaces, which are loaded from Google's servers and may reveal your IP address to Google). Other Evolysium users can see your handle, and the amount and reference of transactions they share with you. We may disclose data to authorities where the law requires it.</p>
+<h4>5. Transfers outside the EEA</h4>
+<p>Some providers may process data outside the European Economic Area. Where they do, we rely on safeguards such as the European Commission's standard contractual clauses or an adequacy decision.</p>
+<h4>6. How long we keep it</h4>
+<p>We keep account data while your account is active. Transaction records are kept for as long as accounting and other laws require. Messages are kept for as long as needed to answer them and for a reasonable period afterwards.</p>
+<h4>7. Your rights</h4>
+<p>You can ask for access to your data, correction, deletion, restriction, a portable copy, and you can object to processing based on legitimate interests. Email <span data-l="email"></span>. You also have the right to complain to your national data protection authority.</p>
+<h4>8. Security and changes</h4>
+<p>We use access controls, encryption in transit and restricted database permissions, but no system is perfectly secure. We will post any update to this policy here with its date.</p></template>
+
+<template id="doc-cookies"><p class="lbl">Last updated <span data-l="updated"></span></p>
+<h4>What we store in your browser</h4>
+<p>Evolysium uses only strictly necessary browser storage: your sign-in session is kept in your browser's local storage so you stay signed in until you sign out. We do not use advertising or analytics cookies, and we do not track you across websites.</p>
+<h4>Third parties</h4>
+<p>When you go to Stripe to pay or set up payouts, Stripe may set its own cookies on its own pages under its own policy. Typefaces are loaded from Google Fonts.</p>
+<h4>Your choices</h4>
+<p>Signing out ends your session. You can also clear site data in your browser settings at any time. If we add analytics or marketing tools in the future, we will ask for your consent first.</p></template>
+
+<template id="doc-refunds"><p class="lbl">Last updated <span data-l="updated"></span></p>
+<h4>Plans</h4>
+<p>Plans are billed monthly. You can cancel any time from "Manage subscription" in your Account page or by emailing <span data-l="email"></span>; your plan then runs until the end of the period you have paid for. Plan fees already paid are not refunded, unless the law requires it.</p>
+<h4>Direct payments</h4>
+<p>Direct payments are final once completed. If a payment was a mistake, ask the recipient to refund it. We may help where we can but cannot reverse a payment without the recipient's agreement or a Stripe or card network process.</p>
+<h4>Milestone agreements</h4>
+<p>If the recipient declines a milestone, the payer is refunded to the original payment method. Once the payer releases the funds, the milestone is complete and cannot be reversed by us.</p>
+<h4>Fees</h4>
+<p>Our platform fee is shown before you pay. Fees charged by Stripe or card networks for a payment are not always returned when a payment is refunded.</p>
+<h4>Disputes and chargebacks</h4>
+<p>If a cardholder disputes a payment, Stripe's process applies and the amount may be withdrawn while it is reviewed. Contact us promptly at <span data-l="email"></span> if you receive a dispute notice.</p></template>
+
+<template id="doc-aup"><p class="lbl">Last updated <span data-l="updated"></span></p>
+<p>You agree not to use Evolysium to:</p>
+<ul><li>break any law, including laws on fraud, money laundering, terrorist financing and sanctions;</li>
+<li>take payment for goods or services that Stripe prohibits or that are illegal in your or your customer's country;</li>
+<li>pretend to be another person or business, or give false information when you sign up or set up payouts;</li>
+<li>create fake transactions, test stolen cards, or move money in circles to hide where it came from;</li>
+<li>harass or defraud other users, or send spam through the platform;</li>
+<li>probe, scan or attack the platform, scrape it, or get around its security or limits;</li>
+<li>upload malware or interfere with other people's use of the service.</li></ul>
+<p>We may investigate suspected misuse, share information with authorities or Stripe where required, and suspend or close accounts. To report abuse or a security problem, email <span data-l="email"></span>.</p></template>
+
+<template id="doc-imprint"><h4>Company details</h4>
+<p><strong><span data-l="entity"></span></strong><br><span data-l="address"></span><br>Country: <span data-l="country"></span></p>
+<p>Registration number: <span data-l="regNo"></span><br>VAT ID: <span data-l="vat"></span></p>
+<h4>Contact</h4>
+<p>Email: <span data-l="email"></span></p>
+<h4>Payment services</h4>
+<p>Card payments, payouts and subscription billing are processed by Stripe.</p></template>
+
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -411,6 +537,7 @@ function render() {
   $('#kAg').textContent = agreements.length;
   const live = sub && ['active', 'trialing'].includes(sub.status);
   hasPlan = !!live; $('#acPlan').textContent = live ? sub.tier.charAt(0).toUpperCase() + sub.tier.slice(1) : 'No plan';
+  $('#manageSub').classList.toggle('hidden', !sub);
   const list = $('#agList'); list.replaceChildren();
   for (const a of agreements) {
     const mine = a.payer === me.id;
@@ -559,6 +686,26 @@ function renderOverview() {
   fill($('#payList'), ledger.filter(r => r.kind === 'payment').slice(0, 5), 'No payments yet.');
   fill($('#invList'), ledger.filter(r => r.kind === 'invoice').slice(0, 8), 'No invoices yet.');
 }
+
+$('#manageSub').addEventListener('click', () => checkout('/api/billing/portal'));
+
+// ----- legal documents -----
+// Fill in your company details here. Every legal page and the footer read from this one object.
+const LEGAL = { entity: '[Evolysium Ltd]', address: '[Registered address]', regNo: '[Registration number]', vat: '[VAT ID, if any]',
+  country: '[Country of establishment]', email: 'office.evolysium@gmail.com', updated: 'November 14, 2026' };
+const DOCS = { terms: 'Terms of Service', privacy: 'Privacy Policy', cookies: 'Cookies and storage', refunds: 'Refunds and cancellation', aup: 'Acceptable Use Policy', imprint: 'Imprint' };
+function fillLegal(root) { root.querySelectorAll('[data-l]').forEach(e => { e.textContent = LEGAL[e.dataset.l] ?? ''; }); }
+function openDoc() {
+  const k = location.hash.slice(1), dlg = $('#docDlg'), t = DOCS[k] && document.getElementById('doc-' + k);
+  if (!t) { if (dlg.open) dlg.close(); return; }
+  $('#docTitle').textContent = DOCS[k];
+  const body = $('#docBody'); body.replaceChildren(t.content.cloneNode(true)); fillLegal(body); body.scrollTop = 0;
+  if (!dlg.open) dlg.showModal();
+}
+$('#docDlg').addEventListener('close', () => { if (DOCS[location.hash.slice(1)]) history.replaceState(null, '', location.pathname + location.search); });
+$('#docClose').addEventListener('click', () => $('#docDlg').close());
+addEventListener('hashchange', openDoc);
+fillLegal(document); openDoc();
 
 // Avoid awaiting Supabase calls inside this callback (deadlock risk), so defer.
 sb.auth.onAuthStateChange(() => setTimeout(refresh, 0));
