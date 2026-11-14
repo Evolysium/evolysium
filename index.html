@@ -470,6 +470,7 @@ dialog.doc[open]{display:flex;flex-direction:column}
 
 <script>
 const API = ''; // same origin (Flask serves this page). If you host the page elsewhere, put your backend URL here and add it to connect-src above.
+const AUTH_HASH = new URLSearchParams(location.hash.slice(1)); // read before Supabase clears the address bar
 const sb = supabase.createClient('https://bpndsntpdpukkjebrfnz.supabase.co', 'sb_publishable_lPudOW-mBnBKB-E9OEbWZQ_HzFuoZk6');
 const $ = s => document.querySelector(s);
 const eur = c => new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(c / 100);
@@ -590,9 +591,15 @@ $('#authForm').addEventListener('submit', async e => {
   e.preventDefault();
   const email = $('#email').value.trim(), password = $('#pw').value;
   const r = signup
-    ? await sb.auth.signUp({ email, password, options: { data: { company: $('#company').value.trim() } } })
+    ? await sb.auth.signUp({ email, password, options: { data: { company: $('#company').value.trim() }, emailRedirectTo: location.origin + location.pathname } })
     : await sb.auth.signInWithPassword({ email, password });
-  if (r.error) return toast(r.error.message);
+  if (r.error) {
+    if (/not confirmed/i.test(r.error.message)) {
+      await sb.auth.resend({ type: 'signup', email, options: { emailRedirectTo: location.origin + location.pathname } });
+      return toast('Please confirm your email first. We just sent you a new link.');
+    }
+    return toast(r.error.message);
+  }
   $('#authDlg').close(); e.target.reset();
   toast(signup && !r.data.session ? 'Check your email to confirm your account.' : 'Signed in.');
 });
@@ -688,10 +695,16 @@ function renderOverview() {
 
 $('#manageSub').addEventListener('click', () => checkout('/api/billing/portal'));
 
+// Coming back from the Supabase confirmation email.
+if (AUTH_HASH.get('error_code') || AUTH_HASH.get('error')) {
+  toast(AUTH_HASH.get('error_code') === 'otp_expired' ? 'This confirmation link has expired. Sign in and we will send a new one.' : (AUTH_HASH.get('error_description') || 'Sign-in link error.'));
+  history.replaceState(null, '', location.pathname + location.search);
+} else if (AUTH_HASH.get('access_token') && AUTH_HASH.get('type') === 'signup') toast('Email confirmed. Welcome to Evolysium.');
+
 // ----- legal documents -----
 // Fill in your company details here. Every legal page and the footer read from this one object.
-const LEGAL = { entity: '[Evolysium Ltd]', address: '[Registered address]', regNo: '[Registration number]', vat: '[VAT ID, if any]',
-  country: '[Country of establishment]', email: 'office.evolysium@gmail.com', updated: 'November 14, 2026' };
+const LEGAL = { entity: 'Evolysium LLC', address: '[Radnička Cesta 10000]', regNo: '[Registration number]', vat: '[VAT ID, if any]',
+  country: '[Croatia]', email: 'office.evolysium@gmail.com', updated: 'November 14, 2026' };
 const DOCS = { terms: 'Terms of Service', privacy: 'Privacy Policy', cookies: 'Cookies and storage', refunds: 'Refunds and cancellation', aup: 'Acceptable Use Policy', imprint: 'Imprint' };
 function fillLegal(root) { root.querySelectorAll('[data-l]').forEach(e => { e.textContent = LEGAL[e.dataset.l] ?? ''; }); }
 function openDoc() {
